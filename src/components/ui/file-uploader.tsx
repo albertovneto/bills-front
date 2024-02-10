@@ -1,7 +1,22 @@
+import {FileProvider, useFileContext, FileActionType} from "@/components/ui/file";
+import {useState} from "react";
+
 type FileUploaderProps = {
   file: File;
 }
 const FileUploader = ({ file }: FileUploaderProps) => {
+  const fileContext = useFileContext();
+
+  const onChangeFunction = (e) => {
+    return fileContext.dispatch({
+      type: FileActionType.UPLOAD,
+      payload: {
+        isLoading: true,
+        file: e.target?.files[0] as File ?? null,
+        fileList: [...fileContext.state.fileList ?? [], e.target?.files[0] ?? []]
+      }
+    });
+  };
 
   return (
     <div className = "flex flex-col gap-6">
@@ -9,7 +24,12 @@ const FileUploader = ({ file }: FileUploaderProps) => {
         <label htmlFor="file" className="sr-only">
           Choose a file
         </label>
-        <input id="file" type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" />
+        <input
+          id="file"
+          type="file"
+          accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"
+          onChange={(e) => onChangeFunction(e)}
+        />
       </div>
       {file && (
         <section>

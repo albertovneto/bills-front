@@ -1,11 +1,10 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import * as Components from '../../components';
 import BillContext, {Bill} from "@/features/bills/billContext";
 import {Link} from "react-router-dom";
 
 export const BillList = () => {
   const [ bills, setBills ] = useContext(BillContext);
-  console.log(bills);
 
   return (
     <>

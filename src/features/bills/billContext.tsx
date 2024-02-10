@@ -16,7 +16,7 @@ const BillContext = createContext<Bill[]>([]);
 const BillDispatchContext = createContext<DispatchBill>(() => {return;});
 
 export function BillProvider({ children }) {
-  const [bills, dispatch] = useReducer(billReducer, [], null);
+  const [bills, dispatch] = useReducer(billReducer, []);
 
   return (
     <BillContext.Provider value={bills}>

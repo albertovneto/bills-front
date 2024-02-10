@@ -1,17 +1,20 @@
 import { ReactNode, createContext, useContext, useReducer } from "react";
 
-enum FileActionType { }
+export enum FileActionType {
+  UPLOAD = "upload"
+}
 
 type ReducerAction<T, P> = {
   type: T;
-  payload?: Partial<P>;
+  payload: Partial<P>;
 };
 
 
 type FileContextState = {
   isLoading: boolean;
   file: File | null;
-  fileList: File[]; // & {} You can add more information about the challenge inside this type
+  fileList: File[] | null;
+  isFileEmpty?: boolean;
 };
 
 type FileAction = ReducerAction<
@@ -31,6 +34,8 @@ type FileProviderProps = { children: ReactNode };
 export const FileContextInitialValues: Partial<FileContextState> = {
   file: {} as File,
   isLoading: false,
+  fileList: [],
+  isFileEmpty: true
 };
 
 const FileContext = createContext({} as FileContextType);
@@ -40,13 +45,23 @@ const FileReducer = (
   action: FileAction,
 ): FileContextState => {
   switch (action.type) {
+    case FileActionType.UPLOAD: {
+      const isFileEmpty = !state.file;
+
+      return {
+        isLoading: false,
+        file: action.payload.file ?? null,
+        fileList: [...state.fileList, action.payload.fileList],
+        isFileEmpty: isFileEmpty
+      };
+    }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
   }
 };
 
-const FileProvider = ({ children }: FileProviderProps) => {
+export const FileProvider = ({ children }: FileProviderProps) => {
   const [state, dispatch] = useReducer(
     FileReducer,
     FileContextInitialValues as FileContextState,
@@ -59,7 +74,7 @@ const FileProvider = ({ children }: FileProviderProps) => {
   );
 };
 
-const useFileContext = () => {
+export const useFileContext = () => {
   const context = useContext(FileContext);
 
   if (context === undefined)
