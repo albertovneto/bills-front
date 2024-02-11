@@ -1,7 +1,13 @@
 import { ReactNode, createContext, useContext, useReducer } from "react";
 
 export enum FileActionType {
-  UPLOAD = "upload"
+  UPLOAD = "upload",
+  CHANGE_FILE = "change_file",
+  SET_LOADING = "set_loading"
+}
+
+export type UploadUrlType = {
+  uploadUrl: string;
 }
 
 type ReducerAction<T, P> = {
@@ -13,7 +19,7 @@ type ReducerAction<T, P> = {
 type FileContextState = {
   isLoading: boolean;
   file: File | null;
-  fileList: File[] | null;
+  fileList?: File[] | null;
   isFileEmpty?: boolean;
 };
 
@@ -45,6 +51,16 @@ const FileReducer = (
   action: FileAction,
 ): FileContextState => {
   switch (action.type) {
+    case FileActionType.CHANGE_FILE: {
+      const isFileEmpty = !state.file;
+
+      return {
+        isLoading: false,
+        file: action.payload.file ?? null,
+        fileList: [...state.fileList],
+        isFileEmpty: isFileEmpty
+      };
+    }
     case FileActionType.UPLOAD: {
       const isFileEmpty = !state.file;
 
@@ -53,6 +69,12 @@ const FileReducer = (
         file: action.payload.file ?? null,
         fileList: [...state.fileList, action.payload.fileList],
         isFileEmpty: isFileEmpty
+      };
+    }
+    case FileActionType.SET_LOADING: {
+      return {
+        ...state,
+        isLoading: action.payload.isLoading ?? true,
       };
     }
     default: {
