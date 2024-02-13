@@ -1,6 +1,7 @@
-import * as Components from '@/components';
+import { FileUploader } from '@/components/ui/file-uploader';
 import { Link } from "react-router-dom";
 import { useFileContext } from "@/components/ui/file";
+import {BillMenu} from "@/features/bills/billMenu";
 
 export const BillFileUpload = () => {
   const fileContext = useFileContext();
@@ -13,12 +14,12 @@ export const BillFileUpload = () => {
     return fileContext.state.file;
   }
 
+  const path = "/bills/upload";
+
   return (
-    <>
-      <Link to="/bills/list">
-        List
-      </Link>
-      <Components.FileUploader file={contextFile()} uploadURL={"bills/upload"}/>
-    </>
+    <div>
+      <BillMenu path={path}/>
+      <FileUploader file={contextFile()} uploadURL="bills/upload"/>
+    </div>
   );
 };

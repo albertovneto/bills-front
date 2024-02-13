@@ -1,11 +1,15 @@
-import {useFileContext, FileActionType, UploadUrlType} from "@/components/ui/file";
-import axios from "axios/index";
+import {useFileContext, FileActionType} from "@/components/ui/file";
+import axios from "axios";
 
 type FileUploaderProps = {
-  file: File;
+  file: File | null;
+  uploadURL: UploadUrlType;
 }
 
-const FileUploader = ({ file }: FileUploaderProps, uploadURL: UploadUrlType) => {
+type UploadUrlType = string;
+
+
+const FileUploader = ({ file, uploadURL }: FileUploaderProps) => {
   const fileContext = useFileContext();
 
   const onChangeFunction = (e) => {
@@ -18,7 +22,7 @@ const FileUploader = ({ file }: FileUploaderProps, uploadURL: UploadUrlType) => 
     });
   };
 
-  const handleFileUpload = (file: File | null, uploadUrl: UploadUrlType) => {
+  const handleFileUpload = (file: File | null, uploadUrl: UploadUrlType, buttonElement) => {
     if (!file) {
       return false;
     }
@@ -26,50 +30,50 @@ const FileUploader = ({ file }: FileUploaderProps, uploadURL: UploadUrlType) => 
     const formData = new FormData();
     formData.append("file", file);
 
-    axios
-      .post("https://localhost:8000/"+uploadUrl, formData, {
+     axios
+      .post("http://localhost:8000/api/"+uploadUrl, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
       .then((response) => {
-
-        console.log(response);
+        fileContext.dispatch({
+          type: FileActionType.UPLOAD,
+          payload: {
+            isLoading: false,
+            file: fileContext.state.file ?? null,
+            fileList: [...fileContext.state.fileList ?? [], fileContext.state.file as File],
+          }
+        });
       })
       .catch((error) => {
-
-        console.log(error);
+        throw new Error(`Error: ${error}`);
+      }).finally(() => {
+        dispatchIsLoading(false);
+        buttonElement.disabled = false;
       });
+
   }
 
-  const dispatchIsLoadingTrue = () => {
+  const dispatchIsLoading = (isLoading: boolean) => {
     return fileContext.dispatch({
       type: FileActionType.SET_LOADING,
       payload: {
-        isLoading: true,
+        isLoading,
       }
     });
   }
 
-  const onUploadFunction = (uploadUrl: UploadUrlType) => {
-    dispatchIsLoadingTrue();
-
-    handleFileUpload(fileContext.state.file, uploadUrl);
-
-    fileContext.dispatch({
-      type: FileActionType.UPLOAD,
-      payload: {
-        isLoading: false,
-        file: fileContext.state.file ?? null,
-        fileList: [...fileContext.state.fileList ?? [], fileContext.state.file as File],
-      }
-    });
-
+  const onUploadFunction = (e, uploadUrl: UploadUrlType) => {
+    const buttonElement = e.currentTarget;
+    buttonElement.disabled = true;
+    dispatchIsLoading(true);
+    handleFileUpload(fileContext.state.file, uploadUrl, buttonElement);
     return true;
   };
 
   const onUploadIsLoading = (isLoading: boolean): string => {
-    return isLoading ? 'Loading...' : 'Upload the file';
+    return isLoading ? 'Loading...' : 'Upload';
   }
 
   return (
@@ -99,7 +103,7 @@ const FileUploader = ({ file }: FileUploaderProps, uploadURL: UploadUrlType) => 
       {file &&
         <button
           className="rounded-lg bg-green-800 text-white px-4 py-2 border-none font-semibold"
-          onClick={() => onUploadFunction(uploadURL)}
+          onClick={(e) => onUploadFunction(e, uploadURL)}
         >
           {onUploadIsLoading(fileContext.state.isLoading)}
         </button>

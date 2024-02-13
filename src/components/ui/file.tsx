@@ -6,10 +6,6 @@ export enum FileActionType {
   SET_LOADING = "set_loading"
 }
 
-export type UploadUrlType = {
-  uploadUrl: string;
-}
-
 type ReducerAction<T, P> = {
   type: T;
   payload: Partial<P>;

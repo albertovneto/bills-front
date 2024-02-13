@@ -1,37 +1,38 @@
 import * as Components from '../../components';
 import {Link} from "react-router-dom";
 import {useFileContext} from "@/components/ui/file";
+import {BillMenu} from "@/features/bills/billMenu";
 
 export const BillFileList = () => {
   const fileContext = useFileContext();
-  console.log(fileContext.state.fileList);
+  const path = "/bills/list";
+
   return (
     <>
-      <Link to="/bills/upload">
-        Upload
-      </Link>
-      <Components.Table>
-        <Components.TableHeader>
-          <Components.TableRow>
-            <Components.TableCell>File</Components.TableCell>
-          </Components.TableRow>
-        </Components.TableHeader>
-
-        {
-          fileContext.state.fileList &&
-          <Components.TableBody>
-            {
-              fileContext.state.fileList?.map((file: File, index: number) => (
-                <Components.TableRow key={index}>
-                  <Components.TableCell>{file[index].name}</Components.TableCell>
-                </Components.TableRow>
-              ))
-            }
-
-          </Components.TableBody>
-        }
-        <Components.TableFooter />
-      </Components.Table>
-    </>
+      <BillMenu path={path} />
+      {
+        fileContext.state.fileList && fileContext.state.fileList.length > 0 ? (
+          <Components.Table>
+            <Components.TableHeader>
+              <Components.TableRow>
+                <Components.TableCell>File</Components.TableCell>
+              </Components.TableRow>
+            </Components.TableHeader>
+            <Components.TableBody>
+              {
+                fileContext.state.fileList?.map((file: File, index: number) => (
+                  <Components.TableRow key={index}>
+                    <Components.TableCell>{file[index].name}</Components.TableCell>
+                  </Components.TableRow>
+                ))
+              }
+            </Components.TableBody>
+            <Components.TableFooter />
+          </Components.Table>
+        ) : (
+          "The upload list is empty"
+        )
+      }
+      </>
   );
 };
